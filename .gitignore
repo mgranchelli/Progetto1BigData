@@ -1,0 +1,13 @@
+archive/
+
+metastore_db/
+
+*.log
+
+MapReduce/Job*/*.txt
+
+Hive/Job*/test*.txt
+
+Spark/Job*/*.txt
+
+*.pdf

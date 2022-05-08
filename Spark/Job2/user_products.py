@@ -2,7 +2,7 @@
 """spark application"""
 
 import argparse
-
+import time
 from pyspark.sql import SparkSession
 
 
@@ -21,41 +21,24 @@ spark = SparkSession \
     .appName("User products") \
     .getOrCreate()
 
+start_time = time.time()
 # read the input file into an RDD with a record for each line
 lines_RDD = spark.sparkContext.textFile(input_filepath)
 
-# get a new RDD where each record is a python dictionary (tweet)
-# obtained by parsing a record (json string) of lines_RDD
-users_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
+user_product_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
 
-print('\n', users_RDD.collect(), '\n')
-# get a new RDD where each record is just the "text" field
-# of a record (tweet Python dictionary) of tweets_RDD
-# Rimuovere tag HTML e resto
-users_RDD = users_RDD.map(f=lambda user_product: (user_product[1], (user_product[0], user_product[2])))
+# RDD (user, (product, score))
+user_product_score_RDD = user_product_RDD.map(f=lambda user_product: (user_product[1], (user_product[0], user_product[2])))
 
-#test = test.flatMap(lambda xs: [(x[0], x[1]) for x in xs])
+# RDD (user, (products, score))
+user_products_score_RDD = user_product_score_RDD.groupByKey()
 
-print('\n', users_RDD.collect(), '\n')
+# RDD (user, (top 5 product, score))
+output_RDD = user_products_score_RDD.map(f=lambda x: (x[0], list(sorted(x[1]))[:5])).sortByKey('ascending')
 
-#words_2_count_RDD = users_RDD.reduceByKey(func=lambda a, b: (a[0], a[1], b[0], b[1]))
+for key, value in output_RDD.collect():
+    print(key, list(value))
 
-words_2_count_RDD = users_RDD.groupByKey()
-
-#print('\n', words_2_count_RDD.collect(), '\n')
-
-for key, value in words_2_count_RDD.sortByKey('ascending').collect():
-    print(key, list(value)[:2])
-
-
-
-#print('\n', ordered_words_2_count_RDD.flatMap(f=lambda x : x).collect(), '\n')
-
-#print('\n', ordered_words_2_count_RDD.flatMap(f=lambda year: [((year[0], i), 1) for i in year[1]]).collect(), '\n')
-
-#output_string_RDD = words_2_count_RDD.map(f=lambda word_count: '%s: %i' %(word_count[0], word_count[1]))
-
-#spark.sparkContext.parallelize([words_2_count_RDD]) \
- #                 .saveAsTextFile(output_filepath)
-
-#print("\nOutput: %s\n" %output_string_RDD)
+#output_cleaned_RDD.saveAsTextFile("")
+end_time = time.time()
+print("\nExecution time: {} seconds\n".format(end_time - start_time))

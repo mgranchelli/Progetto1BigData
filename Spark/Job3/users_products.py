@@ -2,7 +2,7 @@
 """spark application"""
 
 import argparse
-import itertools
+import time
 
 from pyspark.sql import SparkSession
 
@@ -22,50 +22,35 @@ spark = SparkSession \
     .appName("Similar users taste") \
     .getOrCreate()
 
-# read the input file into an RDD with a record for each line
+def users_products_intersect(l1, l2):
+    if len(set(l1).intersection(l2)) > 1:
+        return set(l1).intersection(l2)
+
+start_time = time.time()
 lines_RDD = spark.sparkContext.textFile(input_filepath)
 
-# get a new RDD where each record is a python dictionary (tweet)
-# obtained by parsing a record (json string) of lines_RDD
-user_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
+user_product_score_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
+# Filter score < 4
+user_product_filtered_score_RDD = user_product_score_RDD.filter(lambda score: (int(score[2]) >= 4))
 
-print('\n', user_RDD.collect(), '\n')
-# get a new RDD where each record is just the "text" field
-# of a record (tweet Python dictionary) of tweets_RDD
-# Rimuovere tag HTML e resto
-users_RDD = user_RDD.map(f=lambda user_product: (user_product[1], (user_product[0], user_product[2])))
+# RDD (user, product)
+user_product_RDD = user_product_filtered_score_RDD.map(f=lambda user_product: (user_product[1], user_product[0]))
 
-products_RDD = user_RDD.map(f=lambda user_product: (user_product[0], (user_product[1], user_product[2])))
+# RDD (user, products)
+user_products_RDD = user_product_RDD.groupByKey()
 
-print('\n', users_RDD.collect(), '\n')
+# RDD cartesian product
+users_products_RDD = user_products_RDD.cartesian(user_products_RDD).filter(lambda x: x[0][0] != x[1][0] and users_products_intersect(x[0][1], x[1][1]))
 
-print('\n', products_RDD.collect(), '\n')
+# RDD (user1, user2, products_intersection)
+output_RDD = users_products_RDD.map(f=lambda x: ((x[0][0], x[1][0]), users_products_intersect(x[0][1], x[1][1])))
 
-words_2_count_RDD = products_RDD.groupByKey()
-for key, value in words_2_count_RDD.collect():
+output_cleaned_RDD = output_RDD.filter(lambda x: hash(x[0][0]) > hash(x[0][1])).sortByKey('ascending')
+
+for key, value in output_cleaned_RDD.collect():
     print(key, list(value))
 
-#print('\n', words_2_count_RDD.collect(), '\n')
-#words_2_count_RDD = words_2_count_RDD.map(func=lambda a: (a[0], (a[i], a[j])) if (a[i], a[j] not in a[]))
-words_2_count_RDD = words_2_count_RDD.map(f=lambda a: (a[0], list(itertools.combinations(a[1], 2))))
-#list(itertools.combinations(usersId, 2))
-for key, value in words_2_count_RDD.collect():
-    print(key, list(value))
+#output_cleaned_RDD.saveAsTextFile("")
+end_time = time.time()
+print("\nExecution time: {} seconds\n".format(end_time - start_time))
 
-
-product_users_taste = words_2_count_RDD.map(f=lambda a: (a[0], (a[1][0], a[0][1])))
-
-for key, value in product_users_taste.collect():
-    print(key, value)
-
-
-#print('\n', ordered_words_2_count_RDD.flatMap(f=lambda x : x).collect(), '\n')
-
-#print('\n', ordered_words_2_count_RDD.flatMap(f=lambda year: [((year[0], i), 1) for i in year[1]]).collect(), '\n')
-
-#output_string_RDD = words_2_count_RDD.map(f=lambda word_count: '%s: %i' %(word_count[0], word_count[1]))
-
-#spark.sparkContext.parallelize([words_2_count_RDD]) \
- #                 .saveAsTextFile(output_filepath)
-
-#print("\nOutput: %s\n" %output_string_RDD)

@@ -4,7 +4,7 @@ schematool -dbType derby -initSchema
 
 CREATE TABLE years_text (year INT, text STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 
-LOAD DATA LOCAL INPATH './test_10_record.txt' OVERWRITE INTO TABLE years_text;
+LOAD DATA LOCAL INPATH ''/Users/manuelgranchelli/Università/BigData/Progetti/Progetto1BigData/Hive/Job1/test_10_record.txt'' OVERWRITE INTO TABLE years_text;
 
 chmod 777 ./year_words.py
 

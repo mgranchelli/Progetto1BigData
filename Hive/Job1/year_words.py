@@ -3,9 +3,9 @@
 import string
 import sys
 import re
-# as per recommendation from @freylis, compile once only
-CLEANR = re.compile('<.*?>') 
 
+
+CLEANR = re.compile('<.*?>') 
 def cleanhtml(raw_html): 
     return re.sub(CLEANR, ' ', raw_html)
 
@@ -34,7 +34,7 @@ for line in sys.stdin:
         words = words.translate(str.maketrans('', '', string.punctuation))
         words = re.sub(' +', ' ', words)
         words = words.strip()
-        #  splittare riga in words per il campo text
+        
         words = words.split(" ")
         
         # print output items to stdout, using TAB as a separator

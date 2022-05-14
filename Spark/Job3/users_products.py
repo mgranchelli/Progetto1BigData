@@ -2,7 +2,7 @@
 """spark application"""
 
 import argparse
-import time
+import itertools
 
 from pyspark.sql import SparkSession
 
@@ -22,35 +22,33 @@ spark = SparkSession \
     .appName("Similar users taste") \
     .getOrCreate()
 
-def users_products_intersect(l1, l2):
-    if len(set(l1).intersection(l2)) > 1:
-        return set(l1).intersection(l2)
-
-start_time = time.time()
 lines_RDD = spark.sparkContext.textFile(input_filepath)
 
 user_product_score_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
+
 # Filter score < 4
 user_product_filtered_score_RDD = user_product_score_RDD.filter(lambda score: (int(score[2]) >= 4))
 
-# RDD (user, product)
-user_product_RDD = user_product_filtered_score_RDD.map(f=lambda user_product: (user_product[1], user_product[0]))
+# RDD (product, user)
+product_user_RDD = user_product_filtered_score_RDD.map(f=lambda user_product: (user_product[0], user_product[1]))
+# RDD (product, users)
+product_users_RDD = product_user_RDD.groupByKey()
 
-# RDD (user, products)
-user_products_RDD = user_product_RDD.groupByKey()
+product_users_ordered_RDD = product_users_RDD.map(f=lambda product_users: (product_users[0], sorted(list(product_users[1]))))
 
-# RDD cartesian product
-users_products_RDD = user_products_RDD.cartesian(user_products_RDD).filter(lambda x: x[0][0] != x[1][0] and users_products_intersect(x[0][1], x[1][1]))
+# RDD (product, couple users)
+product_couple_users_RDD = product_users_ordered_RDD.map(f=lambda product_users: (product_users[0], itertools.combinations(product_users[1], 2)))
 
-# RDD (user1, user2, products_intersection)
-output_RDD = users_products_RDD.map(f=lambda x: ((x[0][0], x[1][0]), users_products_intersect(x[0][1], x[1][1])))
+# RDD (couple users, product)
+users_product_RDD = product_couple_users_RDD.flatMap(f=lambda product_users: [(i, product_users[0]) for i in product_users[1]])
 
-output_cleaned_RDD = output_RDD.filter(lambda x: hash(x[0][0]) > hash(x[0][1])).sortByKey('ascending')
+# RDD (couple users, products)
+users_products_RDD = users_product_RDD.groupByKey()
 
-for key, value in output_cleaned_RDD.collect():
-    print(key, list(value))
+# RDD remove duplicate in products
+output_RDD = users_products_RDD.map(f=lambda x: (x[0], set(x[1])))
 
-#output_cleaned_RDD.saveAsTextFile("")
-end_time = time.time()
-print("\nExecution time: {} seconds\n".format(end_time - start_time))
+# RDD output cleaned and ordered
+output_cleaned_RDD = output_RDD.filter(lambda users: (len(users[1]) >= 3)).sortByKey()
 
+output_cleaned_RDD.saveAsTextFile(output_filepath)

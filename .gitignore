@@ -6,8 +6,12 @@ metastore_db/
 
 MapReduce/Job*/*.txt
 
-Hive/Job*/test*.txt
+Hive/Job*/*.txt
 
 Spark/Job*/*.txt
 
 *.pdf
+
+output/
+
+dataset/

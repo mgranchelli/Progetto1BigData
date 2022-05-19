@@ -8,8 +8,6 @@ product_user = {}
 user_product = {}
 user_similar_taste = {}
 
-# input comes from STDIN
-# note: this is the output from the mapper
 for line in sys.stdin:
 
     # as usual, remove leading/trailing spaces

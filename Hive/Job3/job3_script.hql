@@ -13,8 +13,8 @@ USING 'python3 users_products.py' AS userid_1, userid_2, products
 FROM products_users_score
 ORDER BY userid_1;
 
---SELECT * FROM output;
-SELECT * FROM output LIMIT 30;
+SELECT * FROM output;
+--SELECT * FROM output LIMIT 30;
 
 DROP TABLE products_users_score;
 DROP TABLE output;

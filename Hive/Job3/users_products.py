@@ -6,19 +6,16 @@ product_user = {}
 user_product = {}
 user_similar_taste = {}
 
-# input comes from STDIN
-# note: this is the output from the mapper
 for line in sys.stdin:
 
     # as usual, remove leading/trailing spaces
     line = line.strip()
     # parse the input elements
     productId, userId, score = line.split("\t")
-    # convert count (currently a string) to int
+    # convert score to int
     try:
         score = int(score)
     except ValueError:
-        # count was not a number, in this case is just int
         continue
     
     if score >= 4:

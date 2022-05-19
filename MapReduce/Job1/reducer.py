@@ -3,12 +3,9 @@
 
 import sys
 
-# this dictionary maps each word to the sum of the values
-# that the mapper has computed for that word
 year_words = {}
 
-# input comes from STDIN
-# note: this is the output from the mapper
+# input comes from STDIN, this is the output from the mapper
 for line in sys.stdin:
 
     # as usual, remove leading/trailing spaces
@@ -17,18 +14,17 @@ for line in sys.stdin:
     # parse the input elements
     year, current_word, current_count = line.split("\t")
 
-    # convert count (currently a string) to int
     try:
         current_count = int(current_count)
         year = int(year)
     except ValueError:
-        # count was not a number, in this case is just int
         continue
 
-    # initialize word that were not seen befor with 0
+    # initialize year that were not seen befor with {}
     if year not in year_words:
         year_words[year] = {}
     
+    # initialize current word in year that were not seen befor with 0
     if current_word not in year_words[year]:
         year_words[year][current_word] = 0
     

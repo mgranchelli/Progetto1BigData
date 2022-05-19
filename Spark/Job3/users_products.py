@@ -39,10 +39,10 @@ product_users_ordered_RDD = product_users_RDD.map(f=lambda product_users: (produ
 # RDD (product, couple users)
 product_couple_users_RDD = product_users_ordered_RDD.map(f=lambda product_users: (product_users[0], itertools.combinations(product_users[1], 2)))
 
-# RDD (couple users, product)
+# RDD (couple user, product)
 users_product_RDD = product_couple_users_RDD.flatMap(f=lambda product_users: [(i, product_users[0]) for i in product_users[1]])
 
-# RDD (couple users, products)
+# RDD (couple user, products)
 users_products_RDD = users_product_RDD.groupByKey()
 
 # RDD remove duplicate in products

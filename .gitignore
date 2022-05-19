@@ -4,15 +4,10 @@ metastore_db/
 
 *.log
 
-MapReduce/Job*/*.txt
-
-Hive/Job*/*.txt
-
-Spark/Job*/*.txt
-
-output/
-
 *.txt
+
+reviews_job*_dim_1/
+reviews_job*_dim_2/
 
 *.pdf
 

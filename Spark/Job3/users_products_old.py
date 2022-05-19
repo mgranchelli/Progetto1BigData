@@ -2,7 +2,6 @@
 """spark application"""
 
 import argparse
-import time
 
 from pyspark.sql import SparkSession
 
@@ -26,7 +25,7 @@ def users_products_intersect(l1, l2):
     if len(set(l1).intersection(l2)) > 1:
         return set(l1).intersection(l2)
 
-start_time = time.time()
+
 lines_RDD = spark.sparkContext.textFile(input_filepath)
 
 user_product_score_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
@@ -51,5 +50,3 @@ for key, value in output_cleaned_RDD.collect():
     print(key, list(value))
 
 #output_cleaned_RDD.saveAsTextFile("")
-end_time = time.time()
-print("\nExecution time: {} seconds\n".format(end_time - start_time))

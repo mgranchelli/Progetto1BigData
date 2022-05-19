@@ -6,7 +6,6 @@ import re
 import string
 from datetime import datetime
 
-# as per recommendation from @freylis, compile once only
 CLEANR = re.compile('<.*?>') 
 
 def cleanhtml(raw_html): 
@@ -37,6 +36,6 @@ for line in sys.stdin:
     words = words.split(" ")
 
     for word in words:
-        # write in standard output the mapping word -> 1
+        # write in standard output the mapping year, word -> 1
         # in the form of tab-separated pairs
         print('%s\t%s\t%i' % (year, word.lower(), 1))

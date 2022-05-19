@@ -14,7 +14,7 @@ for line in sys.stdin:
     score = score.strip()
     try:
         score = int(score)
-        # score > 4 
+        # score >= 4 
         if score >= 4:
             print('%s\t%s' % (userId, productId))
     except ValueError:

@@ -5,8 +5,6 @@ import sys
 
 user_product_score = {}
 
-# input comes from STDIN
-# note: this is the output from the mapper
 for line in sys.stdin:
 
     # as usual, remove leading/trailing spaces
@@ -20,6 +18,7 @@ for line in sys.stdin:
     except ValueError:
         continue
 
+    # initialize user product score of userId that were not seen befor with 0
     if userId not in user_product_score:
         user_product_score[userId] = {}
     

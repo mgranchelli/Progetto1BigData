@@ -1,6 +1,5 @@
 DROP TABLE products_users_score;
 DROP TABLE users_product;
-DROP TABLE user_product_score;
 DROP TABLE users_n_reviews;
 DROP TABLE output;
 
@@ -28,11 +27,10 @@ WHERE exists (SELECT b.user1, b.user2
         WHERE a.user1 = b.user1 AND a.user2 = b.user2)
 ORDER BY a.user1;
 
---SELECT * FROM output;
-SELECT * FROM output LIMIT 30;
+SELECT * FROM output;
+--SELECT * FROM output LIMIT 30;
 
 DROP TABLE products_users_score;
 DROP TABLE users_product;
-DROP TABLE user_product_score;
 DROP TABLE users_n_reviews;
 DROP TABLE output;

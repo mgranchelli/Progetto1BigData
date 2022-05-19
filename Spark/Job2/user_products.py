@@ -31,13 +31,11 @@ user_product_score_RDD = user_product_RDD.map(f=lambda user_product: (user_produ
 # RDD (user, (products, score))
 user_products_score_RDD = user_product_score_RDD.groupByKey()
 
-# RDD (user, (top 5 product, score))
+# RDD (user, (products, sorted score))
 output_RDD = user_products_score_RDD.map(f=lambda x: (x[0], sorted(set(x[1]), key=lambda score: score[1], reverse=True)))
 
+# RDD (user, (top 5 product, score)) sort by key
 output_five_products_RDD = output_RDD.map(f=lambda user_products: (user_products[0], list(user_products[1])[:5])).sortByKey()
-
-#for key, value in output_five_products_RDD.collect():
-#    print(key, list(value))
 
 output_five_products_RDD.saveAsTextFile(output_filepath)
 

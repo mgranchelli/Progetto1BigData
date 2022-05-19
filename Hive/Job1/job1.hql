@@ -1,6 +1,6 @@
 DROP TABLE year_words;
 DROP TABLE year_text;
-DROP TABLE output_table;
+DROP TABLE output_table_job1;
 
 CREATE TABLE year_text (year INT, text STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 
@@ -13,7 +13,7 @@ SELECT TRANSFORM(year_text.year, year_text.text)
 USING 'python3 year_words.py' AS year, word
 FROM year_text;
 
-CREATE TABLE output_table AS
+CREATE TABLE output_table_job1 AS
 SELECT year, word, number 
 FROM (
     SELECT *, row_number() 
@@ -27,8 +27,8 @@ FROM (
 ) ranked_table
 WHERE ranked_table.rank < 11;
 
-SELECT * FROM output_table;
+SELECT * FROM output_table_job1;
 
 DROP TABLE year_words;
 DROP TABLE year_text;
-DROP TABLE output_table;
+DROP TABLE output_table_job1;

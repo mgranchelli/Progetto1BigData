@@ -6,8 +6,8 @@ metastore_db/
 
 *.txt
 
-reviews_job*_dim_1/
-reviews_job*_dim_2/
+reviews_job3_dim_2/
+output_table_job3_2/
 
 *.pdf
 

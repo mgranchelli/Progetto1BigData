@@ -11,7 +11,7 @@ reviews_job*_dim_2/
 
 *.pdf
 
-*.csv
+*/Job*/*.csv
 
 dataset/
 

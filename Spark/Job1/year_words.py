@@ -3,7 +3,7 @@
 
 import argparse
 import string
-import time
+from datetime import datetime
 import re
 
 from pyspark.sql import SparkSession
@@ -36,14 +36,14 @@ spark = SparkSession \
     .appName("Year words") \
     .getOrCreate()
 
-start_time = time.time()
 # read the input file into an RDD with a record for each line
 lines_RDD = spark.sparkContext.textFile(input_filepath)
 
-year_text_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
+# RDD(Unix time, text)
+time_text_RDD = lines_RDD.map(f=lambda line: line.strip().split("\t"))
 
-# Aggiungere convertitore di data?
-year_cleaned_text_RDD = year_text_RDD.map(f=lambda year_text: (year_text[0], get_clean_text(year_text[1]).split(" ")))
+# RDD (year, words), Unix time to year
+year_cleaned_text_RDD = time_text_RDD.map(f=lambda year_text: (datetime.utcfromtimestamp(int(year_text[0])).strftime('%Y'), get_clean_text(year_text[1]).split(" ")))
 
 # RDD ((year, word), 1)
 year_words_RDD = year_cleaned_text_RDD.flatMap(f=lambda year : [((year[0], i.lower()), 1) for i in year[1]])
@@ -57,11 +57,7 @@ year_words_sum_ordered_RDD = year_words_sum_RDD.sortBy(lambda x: (x[0][0], x[1])
 output_RDD = year_words_sum_ordered_RDD.map(f=lambda x : (x[0][0], (x[0][1], x[1])))
 output_year_list_words_RDD = output_RDD.groupByKey()
 
-output_year_top10_words_RDD = output_year_list_words_RDD.map(f=lambda x : (x[0], list(x[1])[:10]))
+# RDD top 10 words in year
+output_year_top10_words_RDD = output_year_list_words_RDD.map(f=lambda x : (x[0], list(x[1])[:10])).sortByKey(False)
 
-for key, value in output_year_top10_words_RDD.collect():
-    print(key, list(value))
-
-#output_year_top10_words_RDD.saveAsTextFile("")
-end_time = time.time()
-print("\nExecution time: {} seconds\n".format(end_time - start_time))
+output_year_top10_words_RDD.saveAsTextFile(output_filepath)

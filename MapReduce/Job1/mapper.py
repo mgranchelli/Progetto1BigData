@@ -4,9 +4,8 @@
 import sys
 import re
 import string
-import logging
+from datetime import datetime
 
-logging.info("START MAPPER PROCESS")
 # as per recommendation from @freylis, compile once only
 CLEANR = re.compile('<.*?>') 
 
@@ -20,7 +19,11 @@ for line in sys.stdin:
     line = line.strip()
 
     # split the current line into words
-    year, words = line.split("\t")
+    time, words = line.split("\t")
+
+    # get year
+    year = datetime.utcfromtimestamp(int(time)).strftime('%Y')
+
     # remove html tag inside text
     words = cleanhtml(words)
     # replace dot with withespace
@@ -37,5 +40,3 @@ for line in sys.stdin:
         # write in standard output the mapping word -> 1
         # in the form of tab-separated pairs
         print('%s\t%s\t%i' % (year, word.lower(), 1))
-
-logging.info("END MAPPER PROCESS")

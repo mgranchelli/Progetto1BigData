@@ -10,8 +10,16 @@ Hive/Job*/*.txt
 
 Spark/Job*/*.txt
 
-*.pdf
-
 output/
 
+*.txt
+
+*.pdf
+
+*.csv
+
 dataset/
+
+Pseudocode/
+
+Time Execution.ipynb

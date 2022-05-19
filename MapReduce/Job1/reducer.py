@@ -34,7 +34,7 @@ for line in sys.stdin:
     
     year_words[year][current_word] += current_count
 
-for year, words in year_words.items():
+for year, words in sorted(year_words.items(), reverse=True):
     print('%i' % (year))
     for word in sorted(words.items(), key=lambda x: x[1], reverse = True)[:10]:
         print('\t%s\t%i' % (word[0], word[1]))

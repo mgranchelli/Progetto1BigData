@@ -3,9 +3,7 @@
 
 import sys
 
-# this dictionary maps each word to the sum of the values
-# that the mapper has computed for that word
-year_words = {}
+user_product_score = {}
 
 # input comes from STDIN
 # note: this is the output from the mapper
@@ -15,26 +13,20 @@ for line in sys.stdin:
     line = line.strip()
 
     # parse the input elements
-    year, current_word, current_count = line.split("\t")
+    userId, productId, score = line.split("\t")
 
-    # convert count (currently a string) to int
     try:
-        current_count = int(current_count)
-        year = int(year)
+        score = int(score)
     except ValueError:
-        # count was not a number, in this case is just int
         continue
 
-    # initialize word that were not seen befor with 0
-    if year not in year_words:
-        year_words[year] = {}
+    if userId not in user_product_score:
+        user_product_score[userId] = {}
     
-    if current_word not in year_words[year]:
-        year_words[year][current_word] = 0
-    
-    year_words[year][current_word] += current_count
+    user_product_score[userId][productId] = score
 
-for year, words in year_words.items():
-    print('%i' % (year))
-    for word in sorted(words.items(), key=lambda x: x[1], reverse = True)[:10]:
-        print('\t%s\t%i' % (word[0], word[1]))
+
+for userId in sorted(user_product_score.keys()):
+    print('%s' % userId)
+    for productID in sorted(user_product_score[userId].items(), key=lambda x: x[1], reverse = True)[:5]:
+        print('\t%s\t%i' % (productID[0], productID[1]))

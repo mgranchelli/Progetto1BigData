@@ -4,23 +4,22 @@ DROP TABLE output_table;
 
 CREATE TABLE year_text (year INT, text STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
 
-LOAD DATA LOCAL INPATH '/Users/manuelgranchelli/Università/BigData/Progetti/Progetto1BigData/Hive/Job1/test_10_record.txt' OVERWRITE INTO TABLE year_text;
+LOAD DATA LOCAL INPATH '/Users/manuelgranchelli/Uni/BigData/Progetti/Progetto1BigData/dataset/reviews_job1_dim_05.csv' OVERWRITE INTO TABLE year_text;
 
 ADD FILE ./year_words.py;
 
 CREATE TABLE year_words AS
 SELECT TRANSFORM(year_text.year, year_text.text)
-USING 'python3 year_words.py' AS year, word, count
-FROM year_text
-GROUP BY year_text.year, year_text.text;
+USING 'python3 year_words.py' AS year, word
+FROM year_text;
 
 CREATE TABLE output_table AS
 SELECT year, word, number 
 FROM (
-    SELECT year, word, number, row_number() 
-           over (PARTITION BY year ORDER BY number DESC) as rank
+    SELECT *, row_number() 
+           over (PARTITION BY year ORDER BY year, number DESC) as rank
     FROM (
-        SELECT year, word, count(*) as number 
+        SELECT year, word, count(word) as number 
         FROM year_words 
         GROUP BY year, word
     ) count_table

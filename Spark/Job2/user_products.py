@@ -2,7 +2,6 @@
 """spark application"""
 
 import argparse
-import time
 from pyspark.sql import SparkSession
 
 
@@ -21,7 +20,6 @@ spark = SparkSession \
     .appName("User products") \
     .getOrCreate()
 
-start_time = time.time()
 # read the input file into an RDD with a record for each line
 lines_RDD = spark.sparkContext.textFile(input_filepath)
 
@@ -34,11 +32,12 @@ user_product_score_RDD = user_product_RDD.map(f=lambda user_product: (user_produ
 user_products_score_RDD = user_product_score_RDD.groupByKey()
 
 # RDD (user, (top 5 product, score))
-output_RDD = user_products_score_RDD.map(f=lambda x: (x[0], list(sorted(x[1]))[:5])).sortByKey('ascending')
+output_RDD = user_products_score_RDD.map(f=lambda x: (x[0], sorted(set(x[1]), key=lambda score: score[1], reverse=True)))
 
-for key, value in output_RDD.collect():
-    print(key, list(value))
+output_five_products_RDD = output_RDD.map(f=lambda user_products: (user_products[0], list(user_products[1])[:5])).sortByKey()
 
-#output_cleaned_RDD.saveAsTextFile("")
-end_time = time.time()
-print("\nExecution time: {} seconds\n".format(end_time - start_time))
+#for key, value in output_five_products_RDD.collect():
+#    print(key, list(value))
+
+output_five_products_RDD.saveAsTextFile(output_filepath)
+

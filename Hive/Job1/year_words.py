@@ -1,47 +1,41 @@
 #!/usr/bin/env python3
 
-import string
 import sys
 import re
+import string
+from datetime import datetime
 
-
+# as per recommendation from @freylis, compile once only
 CLEANR = re.compile('<.*?>') 
+
 def cleanhtml(raw_html): 
     return re.sub(CLEANR, ' ', raw_html)
 
-# read input from stdin
+# read line from standard input
 for line in sys.stdin:
 
-    try:
-        # remove whitespaces and trailing characters
-        line = line.strip()
+    # removing leading/trailing whitespaces
+    line = line.strip()
 
-        # parse name and unix date using TAB as a separator
-        year, words = line.split("\t")
+    # split the current line into words
+    time, words = line.split("\t")
 
-        # try to convert the unix date to an integer
-        try:
-            year = int(year)
-        except ValueError:
-            continue
+    # get year
+    year = datetime.utcfromtimestamp(int(time)).strftime('%Y')
 
-        # remove html tag inside text
-        words = cleanhtml(words)
-        # replace dot with withespace
-        words = words.replace(".", " ")
+    # remove html tag inside text
+    words = cleanhtml(words)
+    # replace dot with withespace
+    words = words.replace(".", " ")
     
-        # remove punctuation
-        words = words.translate(str.maketrans('', '', string.punctuation))
-        words = re.sub(' +', ' ', words)
-        words = words.strip()
-        
-        words = words.split(" ")
-        
-        # print output items to stdout, using TAB as a separator
-        for word in words:
-            print("%i\t%s\t%i" % (year, word.lower(), 1))
+    # remove punctuation
+    words = words.translate(str.maketrans('', '', string.punctuation))
+    # remove withespace
+    words = re.sub(' +', ' ', words)
+    words = words.strip()
+    words = words.split(" ")
 
-        
-    except:
-        import sys
-        print(sys.exc_info())
+    for word in words:
+        # write in standard output the mapping word -> 1
+        # in the form of tab-separated pairs
+        print('%s\t%s' % (year, word.lower()))

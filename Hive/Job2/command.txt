@@ -1,3 +1,6 @@
+hive --f ./job2.hql
+
+
 Inizializzare il DB all'interno della cartella:
 rm -rf metastore_db 
 schematool -dbType derby -initSchema

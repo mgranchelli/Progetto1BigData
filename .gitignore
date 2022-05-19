@@ -11,6 +11,10 @@ reviews_job*_dim_2/
 
 *.pdf
 
+Rapporto/*
+!images
+!Rapporto_Progetto1_BigData.pdf
+
 */Job*/*.csv
 
 dataset/
